@@ -42,16 +42,45 @@ Now we have everything in place to understand the Kalman filter!!
   
 
 ### Prediction: Computes predicted _mean_ and _covariance_ 
+
 - Given the action model,  xₜ = A*xₜ₋₁ + B*uₜ + wₜ, we can easily derive the predicted mean and variance by linear transformation property of Gaussian
 
-  predicted mean μ⁻ₜ = A*μₜ₋₁ + B*uₜ
+  predicted mean μ⁻ₜ = A*μₜ₋₁ + B*uₜ  
   predicted covariance Σ⁻ₜ =  A*Σₜ₋₁*Aᵀ + Q
   
 
 
 
-### Update: Computes updated _mean_ and _covariance_ using observation  
+### Update: Computes updated _mean_ and _covariance_ using observation
 
+- **Kalman gain** is calculated to determine the extent to which the measurement affects the new state estimate
+- ![Kalman Gain](https://latex.codecogs.com/svg.image?\dpi{150}K%20=%20\frac{\text{Prediction%20Uncertainty}%20\cdot%20C^\top}{\text{Total%20Measurement%20Uncertainty}})  
+   Where:
+      Prediction Uncertainty: Σ⁻ (from prediction Gaussian)    
+      Measurement Jacobian: Cᵀ (  Cᵀ  maps back from measurement space back to state space.)  
+      Total Measurement Uncertainty: C*Σ⁻*Cᵀ + R  
+         C*Σ⁻*Cᵀ: Uncertainty from prediction propagated to measurement space  
+         R: Direct measurement noise uncertainty  
+---
+NOTE:
+1. Numerator: Σ⁻*Cᵀ
+
+   Σ⁻: "How uncertain am I about my prediction?" 
+   Cᵀ: "How does state uncertainty affect measurements?"  
+   Together: "How much should prediction uncertainty influence the measurement update?"  
+
+2. Denominator: C*Σ⁻*Cᵀ + R  
+
+   C*Σ⁻*Cᵀ: "How much uncertainty does my prediction add to the measurement?"  
+   R: "How much noise does my sensor add?"  
+   Together: "Total uncertainty in measurement space" 
+
+3. K small (≈ 0): High confidence in prediction → Barely adjust  
+   K large (≈ 1): High confidence in measurement → Adjust significantly
+
+   ---
+
+   Now lwts look at the correction/update 
 
 
 
