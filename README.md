@@ -61,7 +61,7 @@ Now we have everything in place to understand the Kalman filter!!
       Total Measurement Uncertainty: C*Σ⁻*Cᵀ + R  
          C*Σ⁻*Cᵀ: Uncertainty from prediction propagated to measurement space  
          R: Direct measurement noise uncertainty  
----
+--- 
 NOTE:
 1. Numerator: Σ⁻*Cᵀ
 
@@ -80,8 +80,14 @@ NOTE:
 
    ---
 
-   Now lwts look at the correction/update 
+   Now let's look at the correction/update  
 
+   **Posterior mean** : The prior mean is corrected with the information update z  weighted by Kalman gain  
+   μₜ = μ⁻ₜ + Kₜ*(zₜ - Cμ⁻ₜ)
+
+   **Posterior Covariance** : Is obtained by adding prior confidence Σ_prior⁻¹ and measurement confidence  Hᵀ R⁻¹ H and inverting it  
+   (Σ_prior⁻¹ + Hᵀ R⁻¹ H)⁻¹ = Σ_prior - K H Σ_prior = (I - KH) Σ_prior
+   
 
 
 
