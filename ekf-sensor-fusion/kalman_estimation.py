@@ -1,16 +1,15 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import numpy as np
 
 
-from filters.kalman_filter import KalmanFilter
-import sensor_utils as s_utils
+from . import sensor_utils as s_utils
+from .filters.kalman_filter import KalmanFilter
 
 class KalmanEstimator(Node):
     def __init__(self):
-        super.__init__("Kalman_estimator")
+        super().__init__("Kalman_estimator")
 
         # msg assigned to collect odometry measurements from Wheel encoder : observation
         self.odom_wheelenc_subscription = self.create_subscription(
@@ -37,7 +36,13 @@ class KalmanEstimator(Node):
         observation_noise_std = [2.0, 2.0, 2.0] # w(t)
 
         self.kf = KalmanFilter(self.initial_state, self.initial_covariance, motion_noise_std, observation_noise_std)
+
+        self.prev_time = None # previous prediction time, used to compute the delta_t
         self.prediction_done = False # signals the update step
+
+        # Variables to normalize the pose (always start at the origin)
+        self.initial_pose = None
+        self.normalized_pose = (0.0, 0.0, 0.0) 
 
     
     def odom_estimate_callback(self,msg):
@@ -51,7 +56,7 @@ class KalmanEstimator(Node):
             dt = 0.0
 
         #Prediction
-        mu,Sigma = self.kf.predict(self.u,dt)
+        mu,_ = self.kf.predict(self.u,dt)
         self.prediction_done = True
         self.prev_time = curr_time
         print("predicted pos",mu)
@@ -74,7 +79,7 @@ class KalmanEstimator(Node):
         if self.prediction_done:
 
             z = self.normalized_pose
-            mu, Sigma = self.kf.update(z) # obtain posterior belief 
+            mu, _ = self.kf.update(z) # obtain posterior belief 
             print(f'updated pose with new observation {self.normalized_pose} : {mu}')
 
             # Visualize
